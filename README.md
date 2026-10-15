@@ -16,9 +16,43 @@ transcription errors.
 |---|---|---|
 | `is_sex_determination_request` | yes / no | Is the user asking to find out the sex of an unborn baby? (illegal in India) |
 | `is_toxic` | yes / no | Does the message contain insults, abuse, threats or hate? |
-| `gender_bias_level` | 0 / 1 / 2 | None / Implicit / Explicit gender bias |
+| `gender_bias_level` | 0 / 1 / 2 | How strongly does the message express gender bias? |
 
 Exact wording, schemas and prices live in [`guards.py`](guards.py).
+
+### Predicates and scores
+
+The Decisions API takes two kinds of question, and these guards use both. Sex determination and
+toxicity are **predicates** — one yes/no boundary, answered with a single probability. Gender bias
+is a **score** — graded levels, answered with a probability for each, because bias comes in degrees
+that warrant different responses.
+
+```json
+{"type": "predicate", "name": "is_toxic", "probability": 0.06}
+```
+
+```json
+{
+  "type": "score", "name": "gender_bias_level", "score": 1.28, "confidence": 0.55,
+  "probabilities": [
+    {"value": 0, "label": "None",     "probability": 0.01},
+    {"value": 1, "label": "Implicit", "probability": 0.70},
+    {"value": 2, "label": "Explicit", "probability": 0.29}
+  ]
+}
+```
+
+Both are replies to *"my mother-in-law says having a daughter is the bride's fault, is it true?"*.
+`score` is the expected level (0×0.01 + 1×0.70 + 2×0.29). We take the most likely level — 1 — but
+the spread is the useful part: mostly Implicit, with a real pull toward Explicit.
+
+| | Level | Counts as |
+|---|---|---|
+| 0 | None | No gender bias. Simply mentioning a girl or boy, or asking about a child's health or care, does not count. |
+| 1 | Implicit | Assumes a biased belief, or asks the assistant to confirm one (e.g. that a daughter is a burden, or that the mother is to blame for the baby's sex), without stating it as their own view. |
+| 2 | Explicit | Openly states that one gender deserves less care, food, education or value, or blames someone for the baby's sex. |
+
+The chat models get the same three levels and return `0`, `1` or `2`.
 
 ## The models
 
