@@ -3,7 +3,7 @@
 Measuring accuracy, consistency, cost and latency for content guardrails on a maternal-and-child-health
 helpline, comparing OpenAI's Decisions API against three general-purpose LLMs.
 
-Write-up and findings: **[blog post](ADD_BLOG_URL_HERE)**
+Write-up and findings: **[blog post](https://projecttech4dev.org/system-1-vs-system-2-approaches-testing-ai-guardrails-for-ngos/)**
 
 This repo holds the code, the test set and the full per-call results behind it.
 
